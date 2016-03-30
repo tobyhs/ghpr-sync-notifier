@@ -5,5 +5,8 @@
   },
   "devDependencies": {
     "jasmine": "2.4.1"
+  },
+  "scripts": {
+    "test": "jasmine"
   }
 }
