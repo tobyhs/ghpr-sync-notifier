@@ -81,6 +81,15 @@ describe('ghpr-sync-notifier server', function () {
     });
   });
 
+  describe('when making a bad request', function () {
+    it('returns a 400', function (done) {
+      http.request({port, method: 'POST', path: '/events'}, (res) => {
+        expect(res.statusCode).toEqual(400);
+        done();
+      }).end();
+    });
+  });
+
   describe('when the PR is not a synchronize action', function () {
     it('does not send a comment', function (done) {
       const payload = generatePREvent({action: 'opened'});
