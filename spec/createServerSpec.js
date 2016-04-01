@@ -12,12 +12,12 @@ describe('ghpr-sync-notifier server', function () {
   const port = process.env.PORT || 7878;
   const server = createServer(github, webhookSecret);
 
-  beforeAll(function () {
-    server.listen(port);
+  beforeAll(function (done) {
+    server.listen(port, done);
   });
 
-  afterAll(function () {
-    server.close();
+  afterAll(function (done) {
+    server.close(done);
   });
 
   beforeEach(function () {
