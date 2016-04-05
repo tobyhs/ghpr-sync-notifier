@@ -56,13 +56,18 @@ describe('ghpr-sync-notifier server', function () {
    *
    * @see https://developer.github.com/v3/activity/events/types/#pullrequestevent
    *
-   * @param {Object} overrides - attributes to override
+   * @param {Object} overrides
+   *   attributes to override; note that this only works correctly for the
+   *   first depth (not a deep merge)
    * @returns {Object} a generated pull request event
    */
   function generatePREvent(overrides) {
     return Object.assign({
       action: 'opened',
       number: 12,
+      pull_request: {
+        state: 'open',
+      },
       repository: {
         name: 'ghpr-sync-notifier',
         owner: {
@@ -70,6 +75,22 @@ describe('ghpr-sync-notifier server', function () {
         },
       },
     }, overrides);
+  }
+
+  /**
+   * Defines a spec that asserts a comment is not sent for the given event
+   * payload.
+   *
+   * @param {Object} eventPayload - a pull request event payload
+   */
+  function itDoesNotSendAComment(eventPayload) {
+    it('does not send a comment', function (done) {
+      webhookRequest('pull_request', eventPayload, () => {
+        // toHaveBeenCalledTimes(0) doesn't work
+        expect(github.issues.createComment.calls.count()).toEqual(0);
+        done();
+      });
+    });
   }
 
   describe('when hitting a nonexistent route', function () {
@@ -90,28 +111,29 @@ describe('ghpr-sync-notifier server', function () {
     });
   });
 
-  describe('when the PR is not a synchronize action', function () {
-    it('does not send a comment', function (done) {
-      const payload = generatePREvent({action: 'opened'});
-      webhookRequest('pull_request', payload, () => {
-        // toHaveBeenCalledTimes(0) doesn't work
-        expect(github.issues.createComment.calls.count()).toEqual(0);
-        done();
-      });
-    });
+  describe('when the PR event is not a synchronize action', function () {
+    itDoesNotSendAComment(generatePREvent());
   });
 
-  describe('when the PR is a synchronize action', function () {
-    it('sends a comment', function (done) {
+  describe('when the PR event is a synchronize action', function () {
+    describe('and the state is not open', function () {
       const payload = generatePREvent({action: 'synchronize'});
-      webhookRequest('pull_request', payload, () => {
-        expect(github.issues.createComment).toHaveBeenCalledWith({
-          user: 'tobyhs',
-          repo: 'ghpr-sync-notifier',
-          number: 12,
-          body: 'Pull request updated with a push',
+      payload.pull_request.state = 'closed';
+      itDoesNotSendAComment(payload);
+    });
+
+    describe('and the state is open', function () {
+      it('sends a comment', function (done) {
+        const payload = generatePREvent({action: 'synchronize'});
+        webhookRequest('pull_request', payload, () => {
+          expect(github.issues.createComment).toHaveBeenCalledWith({
+            user: 'tobyhs',
+            repo: 'ghpr-sync-notifier',
+            number: 12,
+            body: 'Pull request updated with a push',
+          });
+          done();
         });
-        done();
       });
     });
   });
