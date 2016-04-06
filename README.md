@@ -6,7 +6,7 @@ a GitHub email so watchers receive an email when a pull request is updated with
 a push.
 
 
-# Setup
+## Setup
 
 Install Node.js and run `npm install` in the project root. Create a
 `config.json` file like the following:
@@ -23,4 +23,4 @@ will author the comment. You can optionally specify a `"port"` entry to specify
 the listening port for the server.
 
 Follow the instructions on https://developer.github.com/webhooks/ to set up a
-webhook. You will need to subscribe to the `pull\_request` event.
+webhook. You will need to subscribe to the `pull_request` event.
