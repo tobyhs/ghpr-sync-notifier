@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 
-const GitHubApi = require('github');
-const createServer = require('./lib/createServer');
+const nodemailer = require('nodemailer');
+const Server = require('./lib/Server');
 
 const config = require('./config.json');
+const smtpTransport = nodemailer.createTransport(config.mailConfig);
 
-const github = new GitHubApi({
-  version: '3.0.0', headers: {'user-agent': 'ghpr-sync-notifier'}
-});
-github.authenticate({type: 'oauth', token: config.githubToken});
-
-createServer(github, config.webhookSecret).listen(config.port || 8080);
+new Server(smtpTransport, config).listen(config.port || 8080);
