@@ -1,9 +1,7 @@
-# GitHub Pull Request Synchronize Notifier (ghpr-sync-notifier)
+# GitHub Pull Request Sync Notifier (ghpr-sync-notifier)
 
-This is a GitHub webhook handler that creates a comment on a pull request every
-time a "synchronize" action happens on that pull request. This comment triggers
-a GitHub email so watchers receive an email when a pull request is updated with
-a push.
+This is a GitHub webhook handler that sends an email when a "synchronize"
+action (push to a pull request's branch) happens on an open pull request.
 
 
 ## Setup
@@ -13,14 +11,24 @@ Install Node.js and run `npm install` in the project root. Create a
 
 ```json
 {
-  "githubToken": "abc123",
+  "mailConfig": "smtp://localhost:25",
+  "mailOptions": {
+    "from": "donotreply@example.com",
+    "to": ["recipient@example.com"]
+  },
+  "port": 8080,
   "webhookSecret": "very_secret"
 }
 ```
 
-For `"githubToken"`, use a personal access token of the GitHub account that
-will author the comment. You can optionally specify a `"port"` entry to specify
-the listening port for the server.
+Description of entries:
+* mailConfig - configuration object or connection URL to pass to nodemailer's
+  `createTransport` function
+* mailOptions - object that should at least contain the `from` (From field in
+  the email) and `to` (string or array of email addresses to send to)
+  properties
+* port - port for server to bind to
+* webhookSecret - GitHub webhook secret
 
 Follow the instructions on https://developer.github.com/webhooks/ to set up a
 webhook. You will need to subscribe to the `pull_request` event.
