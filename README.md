@@ -1,5 +1,8 @@
 # GitHub Pull Request Sync Notifier (ghpr-sync-notifier)
 
+This webhook handler is no longer needed because GitHub started sending emails
+for the event in question.
+
 This is a GitHub webhook handler that sends an email when a "synchronize"
 action (push to a pull request's branch) happens on an open pull request.
 
